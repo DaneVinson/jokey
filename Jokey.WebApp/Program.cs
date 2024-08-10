@@ -5,7 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddSingleton(new AppOptions()
     {
-        JokeUri = "https://v2.jokeapi.dev/joke/Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt",
+		// Great, free and open API for jokes: https://jokeapi.dev
+		JokeUri = "https://v2.jokeapi.dev/joke/Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt",
         RenderTier = "Server"
     })
     .AddSingleton<IJokeService, JokeService>()
