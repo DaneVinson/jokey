@@ -1,0 +1,31 @@
+﻿@page "/jokes"
+
+@inject IJokeService jokeService
+@inject AppOptions appOptions
+
+<PageTitle>Jokes</PageTitle>
+
+<h1>Joke</h1>
+<hr />
+<p>Render Tier: @appOptions.RenderTier</p>
+<p>@Joke</p>
+<button class="btn btn-primary" @onclick="async () => await NextJokeAsync()">
+	Another
+</button>
+
+@code
+{
+	private string Joke { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await NextJokeAsync();
+
+		await base.OnInitializedAsync();
+	}
+
+	private async Task NextJokeAsync()
+	{
+		Joke = await jokeService.GetJokeAsync();
+	}
+}
