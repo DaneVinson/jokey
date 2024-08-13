@@ -1,7 +1,3 @@
-using Jokey.Client;
-using Jokey.Client.Services;
-using Microsoft.AspNetCore.Components.Web;
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services
