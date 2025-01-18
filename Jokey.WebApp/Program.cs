@@ -3,16 +3,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddSingleton(new AppOptions()
     {
-		// Great, free and open API for jokes: https://jokeapi.dev
-		JokeUri = "https://v2.jokeapi.dev/joke/Pun?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&format=txt",
-        RenderTier = "Server"
+        JokeUri = Jokes.JokeApi_Pun,
+        Joke2Uri = "https://localhost:7192/joke",
+        RenderTier = "Server",
+        UriDescription = "jokeapi.dev",
+        Uri2Description = "Remote Jokey API",
     })
     .AddSingleton<IJokeService, JokeService>()
+    .AddSingleton<IJokeService2, JokeService2>()
     .AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddHttpClient<JokeService>("JokeApiClient");
+builder.Services.AddHttpClient<JokeService>("jokeapi.dev");
+builder.Services.AddHttpClient<JokeService2>("JokeyApi");
 
 var app = builder.Build();
 

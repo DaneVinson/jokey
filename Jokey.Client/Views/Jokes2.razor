@@ -1,6 +1,6 @@
-﻿@page "/jokes"
+﻿@page "/jokes2"
 
-@inject IJokeService jokeService
+@inject IJokeService2 jokeService
 @inject AppOptions appOptions
 
 <PageTitle>Jokes</PageTitle>
@@ -12,7 +12,7 @@
 </button>
 <hr />
 <div>Render Tier: @appOptions.RenderTier</div>
-<div>Joke Source: @appOptions.UriDescription</div>
+<div>Joke Source: @appOptions.Uri2Description</div>
 
 @code
 {
