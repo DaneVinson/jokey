@@ -1,14 +1,7 @@
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services
-    .AddSingleton(new AppOptions()
-    {
-        JokeUri = $"{builder.HostEnvironment.BaseAddress}joke",
-        Joke2Uri = "https://localhost:7192/joke",
-        RenderTier = "Client",
-        UriDescription = "Hosting API",
-        Uri2Description = "Remote Jokey API"
-    })
+    .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
     .AddScoped<IJokeService, JokeService>()
     .AddScoped<IJokeService2, JokeService2>();
 

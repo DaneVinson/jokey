@@ -1,14 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddSingleton(new AppOptions()
-    {
-        JokeUri = Jokes.JokeApi_Pun,
-        Joke2Uri = "https://localhost:7192/joke",
-        RenderTier = "Server",
-        UriDescription = "jokeapi.dev",
-        Uri2Description = "Remote Jokey API",
-    })
+    .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
     .AddSingleton<IJokeService, JokeService>()
     .AddSingleton<IJokeService2, JokeService2>()
     .AddRazorComponents()
