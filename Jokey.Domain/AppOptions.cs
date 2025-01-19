@@ -1,6 +1,6 @@
 ﻿namespace Jokey.Domain;
 
-public class AppOptions
+public sealed class AppOptions
 {
     public string JokeUri { get; set; } = string.Empty;
     public string Joke2Uri { get; set; } = string.Empty;

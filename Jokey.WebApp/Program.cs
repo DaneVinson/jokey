@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
+    .AddSingleton(builder.Configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>()!)
     .AddSingleton<IJokeService, JokeService>()
     .AddSingleton<IJokeService2, JokeService2>()
     .AddRazorComponents()
