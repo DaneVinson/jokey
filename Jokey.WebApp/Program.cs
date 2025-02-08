@@ -10,9 +10,11 @@ builder.Services
     .AddSingleton(authOptions)
     .AddSingleton<IJokeService, JokeService>()
     .AddSingleton<IJokeService2, JokeService2>()
-    .AddRazorComponents()
+	.AddCascadingAuthenticationState()
+	.AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveWebAssemblyComponents()
+	.AddAuthenticationStateSerialization();
 
 builder.Services
     .AddAuth0WebAppAuthentication(options => 
