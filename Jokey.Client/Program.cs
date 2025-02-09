@@ -1,8 +1,9 @@
+using Jokey.Client;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services
-    .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
-    .AddSingleton(builder.Configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>()!)
+    .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddScoped<IJokeService, JokeService>()
     .AddScoped<IJokeService2, JokeService2>()
     .AddAuthorizationCore()

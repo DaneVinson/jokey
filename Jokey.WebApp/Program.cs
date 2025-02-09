@@ -1,12 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
-var authOptions = builder.Configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>() ??
-                    throw new NullReferenceException($"Could not bind configuration to {nameof(AuthOptions)}");
-var appOptions = builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>() ??
-                    throw new NullReferenceException($"Counld not bind configuration to {nameof(AppOptions)}");
+var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
 
 builder.Services
-    .AddSingleton(appOptions)
+    .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton(authOptions)
     .AddSingleton<IJokeService, JokeService>()
     .AddSingleton<IJokeService2, JokeService2>()
@@ -53,6 +50,10 @@ app
 app
     .MapGet("/joke", async (IJokeService jokeService) => await jokeService.GetJokeAsync())
     .RequireAuthorization();
+
+app
+	.MapGet("/joke2", async (IJokeService2 jokeService) => await jokeService.GetJokeAsync())
+	.RequireAuthorization();
 
 app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
 {

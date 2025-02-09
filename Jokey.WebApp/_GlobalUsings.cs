@@ -3,6 +3,7 @@ global using Jokey.Client;
 global using Jokey.Client.Views;
 global using Jokey.Client.Components;
 global using Jokey.Client.Components.Layout;
+global using Jokey.WebApp;
 global using Jokey.Domain;
 global using Jokey.WebApp.Components;
 global using Microsoft.AspNetCore.Authentication;

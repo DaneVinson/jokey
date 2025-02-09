@@ -1,8 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
-    .AddSingleton(builder.Configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>()!)
+    .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton<IJokeService, JokeService>();
 
 builder.Services.AddHttpClient<JokeService>("jokeapi.dev");
