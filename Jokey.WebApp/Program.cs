@@ -50,10 +50,9 @@ app
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Jokey.Client._Imports).Assembly);
 
-app.MapGet("/joke", async (IJokeService jokeService) =>
-{
-	return await jokeService.GetJokeAsync();
-});
+app
+    .MapGet("/joke", async (IJokeService jokeService) => await jokeService.GetJokeAsync())
+    .RequireAuthorization();
 
 app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
 {
