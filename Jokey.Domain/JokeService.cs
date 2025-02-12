@@ -2,28 +2,28 @@
 
 public class JokeService : IJokeService
 {
-    public JokeService(HttpClient httpClient, AppOptions options)
+	private readonly HttpClient _httpClient;
+	private readonly string _jokeUri;
+
+	public JokeService(IHttpClientFactory httpClientFactory, AppOptions options)
     {
-		HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+		_httpClient = httpClientFactory?.CreateClient(nameof(JokeService)) ?? throw new ArgumentNullException(nameof(httpClientFactory));
 		if (options?.JokeUri is null)
 		{
 			throw new ArgumentNullException(nameof(options.JokeUri));
 		}
     
-		JokeUri = options.JokeUri;
+		_jokeUri = options.JokeUri;
     }
-
-	protected HttpClient HttpClient { get; private set; }
-    protected string JokeUri { get; set; }
 
     public async Task<string> GetJokeAsync()
     {
-		var response = await HttpClient.GetAsync(JokeUri);
+		var response = await _httpClient.GetAsync(_jokeUri);
 		if (response.IsSuccessStatusCode)
 		{
 			return await response.Content.ReadAsStringAsync();
 		}
 
-		return $"The joke broke ({response.StatusCode} {response.ReasonPhrase}).";
+		return $"The joke broke ({response.StatusCode:D} {response.ReasonPhrase}).";
     }
 }

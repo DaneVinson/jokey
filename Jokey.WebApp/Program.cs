@@ -6,7 +6,9 @@ builder.Services
     .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton(authOptions)
     .AddSingleton<IJokeService, JokeService>()
-    .AddSingleton<IJokeService2, JokeService2>()
+    .AddScoped<IJokeService2, JokeService2>()
+	.AddScoped<TokenHandler>()
+	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
 	.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -14,14 +16,21 @@ builder.Services
 	.AddAuthenticationStateSerialization();
 
 builder.Services
-    .AddAuth0WebAppAuthentication(options => 
+    .AddAuth0WebAppAuthentication(options =>
     {
-		options.ClientId = authOptions.ClientId;
-		options.Domain = authOptions.Domain;
+        options.ClientId = authOptions.ClientId;
+        options.ClientSecret = authOptions.ClientSecret;
+        options.Domain = authOptions.Domain;
+    })
+    .WithAccessToken(options =>
+    {
+        options.Audience = authOptions.Audience;
     });
 
-builder.Services.AddHttpClient<JokeService>("jokeapi.dev");
-builder.Services.AddHttpClient<JokeService2>("JokeyApi");
+builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
+builder.Services
+    .AddHttpClient<JokeService2>(nameof(JokeService2))
+    .AddHttpMessageHandler<TokenHandler>();
 
 var app = builder.Build();
 

@@ -1,0 +1,25 @@
+﻿namespace Jokey.WebApp;
+
+public sealed class TokenHandler : DelegatingHandler
+{
+	private readonly IHttpContextAccessor _httpContextAccessor;
+
+	public TokenHandler(IHttpContextAccessor httpContextAccessor)
+	{
+		_httpContextAccessor = httpContextAccessor;
+	}
+
+	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	{
+		if (_httpContextAccessor.HttpContext is null)
+		{
+			throw new ArgumentException($"{typeof(TokenHandler).FullName}: HttpContext object is null");
+		}
+
+		var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+		
+		return await base.SendAsync(request, cancellationToken);
+	}
+}
