@@ -7,7 +7,7 @@ builder.Services
     .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton<IJokeService, JokeService>();
 
-builder.Services.AddHttpClient<JokeService>("jokeapi.dev");
+builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
 
 builder.Services.AddCors(options =>
 {

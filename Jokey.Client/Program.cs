@@ -10,7 +10,7 @@ builder.Services
     .AddCascadingAuthenticationState()
     .AddAuthenticationStateDeserialization();
 
-builder.Services.AddHttpClient<JokeService>("JokeyWebApp");
-builder.Services.AddHttpClient<JokeService2>("JokeyApi");
+builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
+builder.Services.AddHttpClient<JokeService2>(nameof(JokeService2));
 
 await builder.Build().RunAsync();

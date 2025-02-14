@@ -2,7 +2,7 @@
 
 public static class Extensions
 {
-	public static T GetConfigurationObject<T>(this ConfigurationManager configuration, string? key = null)
+	public static T GetConfigurationObject<T>(this IConfiguration configuration, string? key = null)
 	{
 		return configuration.GetSection(GetKey<T>(key)).Get<T>() ??
 			throw new InvalidOperationException($"{nameof(ConfigurationManager)} could not bind configuration key \"{GetKey<T>(key)}\" to type {typeof(T).FullName}");
