@@ -1,11 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddSingleton(builder.Configuration.GetSection(nameof(AppOptions)).Get<AppOptions>()!)
-    .AddSingleton(builder.Configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>()!)
+	.AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
+	.AddSingleton(builder.Configuration.GetConfigurationObject<AuthOptions>())
     .AddSingleton<IJokeService, JokeService>();
 
-builder.Services.AddHttpClient<JokeService>("jokeapi.dev");
+builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
 
 builder.Services.AddCors(options =>
 {
