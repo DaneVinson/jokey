@@ -1,5 +1,3 @@
-using Jokey.Client;
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services
