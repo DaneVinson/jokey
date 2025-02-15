@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject NotificationService notificationService
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Jokey</a>
     </div>
@@ -8,6 +10,9 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
+        <div class="nav-item px-3">
+            <button class="btn btn-primary" @onclick="@(() => notificationService.ShowNotification("Notification"))">Notification</button>
+        </div>
         <div class="nav-item px-3">
             <Login />
         </div>

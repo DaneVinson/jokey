@@ -1,3 +1,5 @@
+using Blazored.Toast;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
@@ -5,9 +7,11 @@ var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
 builder.Services
     .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton(authOptions)
-    .AddSingleton<IJokeService, JokeService>()
-    .AddScoped<IJokeService2, JokeService2>()
+    .AddScoped<IJokeService, JokeService>()
+	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
+    .AddScoped<NotificationService>()
+	.AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
 	.AddRazorComponents()
