@@ -1,4 +1,4 @@
-﻿namespace Jokey.WebApp;
+﻿namespace Jokey.WebApp.Services;
 
 public sealed class TokenHandler : DelegatingHandler
 {

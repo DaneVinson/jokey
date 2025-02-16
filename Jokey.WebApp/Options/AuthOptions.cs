@@ -1,4 +1,4 @@
-﻿namespace Jokey.WebApp;
+﻿namespace Jokey.WebApp.Options;
 
 public sealed class AuthOptions
 {

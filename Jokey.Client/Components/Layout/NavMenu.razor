@@ -1,4 +1,4 @@
-﻿@inject NotificationService notificationService
+﻿@implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -10,9 +10,6 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <button class="btn btn-primary" @onclick="@(() => notificationService.ShowNotification("Notification"))">Notification</button>
-        </div>
         <div class="nav-item px-3">
             <Login />
         </div>
@@ -37,3 +34,32 @@
         </AuthorizeView>
     </nav>
 </div>
+
+@code
+{
+    private readonly INotificationService _notificationService;
+    private readonly IToastService _toastService;
+
+    public NavMenu(INotificationService notificationService, IToastService toastService)
+    {
+        _notificationService = notificationService;
+        _toastService = toastService;
+    }
+
+    public void Dispose()
+    {
+        _notificationService.OnNotificationReceived -= ShowNotification;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _notificationService.OnNotificationReceived += ShowNotification;
+        await _notificationService.StartAsync();
+        await base.OnInitializedAsync();
+	}
+
+	private void ShowNotification(Notification notification)
+	{
+		_toastService.ShowInfo(notification.Message);
+	}
+}

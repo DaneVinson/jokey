@@ -1,16 +1,16 @@
-using Blazored.Toast;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
+var azureOptions = builder.Configuration.GetConfigurationObject<AzureOptions>();
 
 builder.Services
     .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
     .AddSingleton(authOptions)
-    .AddScoped<IJokeService, JokeService>()
+    .AddSingleton(azureOptions)
+	.AddScoped<IJokeService, JokeService>()
 	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
-    .AddScoped<NotificationService>()
+    .AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
 	.AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
@@ -18,6 +18,10 @@ builder.Services
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents()
 	.AddAuthenticationStateSerialization();
+
+builder.Services
+    .AddSignalR()
+    .AddAzureSignalR(azureOptions.SignalRConnectionString);
 
 builder.Services
     .AddAuth0WebAppAuthentication(options =>
@@ -86,5 +90,17 @@ app.MapGet("/Account/Logout", async (HttpContext httpContext) =>
 	await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authProperties);
 	await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 });
+
+app.MapPost("/clientnotifications", async (Notification notification, IHubContext<NotificationHub> hubContext) =>
+{
+	await hubContext
+            .Clients
+            .Group(notification.UserName)
+            .SendAsync(NotificationHub.ClientReceiveMethod, notification);
+
+    return Results.Accepted();
+});
+
+app.MapHub<NotificationHub>("/notifications");
 
 app.Run();
