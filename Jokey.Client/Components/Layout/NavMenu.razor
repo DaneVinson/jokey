@@ -37,13 +37,15 @@
 
 @code
 {
+    private readonly AuthenticationStateProvider _authenticationStateProvider;
     private readonly INotificationService _notificationService;
     private readonly IToastService _toastService;
 
-    public NavMenu(INotificationService notificationService, IToastService toastService)
+    public NavMenu(INotificationService notificationService, AuthenticationStateProvider authenticationStateProvider, IToastService toastService)
     {
-        _notificationService = notificationService;
-        _toastService = toastService;
+		_authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
+		_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+		_toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
     }
 
     public void Dispose()
@@ -54,7 +56,13 @@
     protected override async Task OnInitializedAsync()
     {
         _notificationService.OnNotificationReceived += ShowNotification;
-        await _notificationService.StartAsync();
+
+		var authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		if (authenticationState.User.Identity?.IsAuthenticated ?? false)
+		{
+			await _notificationService.StartAsync();
+		}
+
         await base.OnInitializedAsync();
 	}
 
