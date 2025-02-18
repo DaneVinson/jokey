@@ -2,11 +2,11 @@ namespace Jokey.WebApp.Services;
 
 public sealed class NotificationHub : Hub
 {
-    public const string ClientReceiveMethod = "ReceiveNotification";
+    public const string ClientReceiveMethodName = "ReceiveNotification";
 
 	public async Task SendNotification(Notification notification)
     {
-        await Clients.All.SendAsync("ReceiveNotification", notification);
+        await Clients.All.SendAsync(ClientReceiveMethodName, notification);
     }
 
 	public override async Task OnConnectedAsync()

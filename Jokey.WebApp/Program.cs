@@ -96,7 +96,7 @@ app.MapPost("/clientnotifications", async (Notification notification, IHubContex
 	await hubContext
             .Clients
             .Group(notification.UserName)
-            .SendAsync(NotificationHub.ClientReceiveMethod, notification);
+            .SendAsync(NotificationHub.ClientReceiveMethodName, notification);
 
     return Results.Accepted();
 });
