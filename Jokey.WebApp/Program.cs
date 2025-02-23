@@ -97,9 +97,13 @@ app.MapGet("/Account/Logout", async (HttpContext httpContext) =>
 
 app.MapPost("/clientnotifications", async (Notification notification, IHubContext<NotificationHub> hubContext) =>
 {
+	//await hubContext
+	//		.Clients
+	//		.Group(notification.UserName)
+	//		.SendAsync(NotificationHub.ClientReceiveMethodName, notification);
 	await hubContext
             .Clients
-            .Group(notification.UserName)
+            .All
             .SendAsync(NotificationHub.ClientReceiveMethodName, notification);
 
     return Results.Accepted();
