@@ -35,6 +35,8 @@ builder.Services
         options.Audience = authOptions.Audience;
     });
 
+builder.Services.AddAuthorization();
+
 builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
 builder.Services
     .AddHttpClient<JokeService2>(nameof(JokeService2))
@@ -56,7 +58,9 @@ else
 app
     .UseHttpsRedirection()
     .UseStaticFiles()
-    .UseAntiforgery();
+    .UseAntiforgery()
+    .UseAuthentication()
+    .UseAuthorization();
 
 app
     .MapRazorComponents<App>()
