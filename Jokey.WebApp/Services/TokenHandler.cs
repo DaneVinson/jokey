@@ -19,7 +19,7 @@ public sealed class TokenHandler : DelegatingHandler
 		var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		
+
 		return await base.SendAsync(request, cancellationToken);
 	}
 }

@@ -109,6 +109,8 @@ app.MapPost("/clientnotifications", async (Notification notification, IHubContex
     return Results.Accepted();
 });
 
-app.MapHub<NotificationHub>("/notifications");
+app
+    .MapHub<NotificationHub>("/notifications")
+    .RequireAuthorization();
 
 app.Run();

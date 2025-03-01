@@ -16,5 +16,6 @@ global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.AspNetCore.SignalR.Client;
+global using System.Net;
 global using System.Net.Http.Headers;
 global using System.Security.Claims;
