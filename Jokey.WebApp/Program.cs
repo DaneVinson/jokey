@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Components.Server.Circuits;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
@@ -10,7 +12,9 @@ builder.Services
 	.AddScoped<IJokeService, JokeService>()
 	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
-    .AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
+    .AddScoped<IUserContext, UserContext>()
+	.AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
+    .AddScoped<CircuitHandler, UserCircuitHandler>()
 	.AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
@@ -20,8 +24,8 @@ builder.Services
 	.AddAuthenticationStateSerialization();
 
 builder.Services
-    .AddSignalR()
-    .AddAzureSignalR(azureOptions.SignalRConnectionString);
+    .AddSignalR();
+    //.AddAzureSignalR(azureOptions.SignalRConnectionString);
 
 builder.Services
     .AddAuth0WebAppAuthentication(options =>
@@ -111,7 +115,7 @@ app.MapPost("/clientnotifications", async (Notification notification, IHubContex
 });
 
 app
-    .MapHub<NotificationHub>("/notifications")
-    .RequireAuthorization();
+    .MapHub<NotificationHub>("/notifications");
+    //.RequireAuthorization();
 
 app.Run();

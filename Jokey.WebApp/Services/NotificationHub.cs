@@ -4,42 +4,40 @@ public sealed class NotificationHub : Hub
 {
     public const string ClientReceiveMethodName = "ReceiveNotification";
 
+	private readonly IUserContext _userContext;
+
+	public NotificationHub(IUserContext userContext)
+	{
+		_userContext = userContext ?? throw new ArgumentNullException(nameof(userContext));
+	}
+
 	public async Task SendNotification(Notification notification)
     {
         await Clients.All.SendAsync(ClientReceiveMethodName, notification);
     }
 
 	public override async Task OnConnectedAsync()
-	{	
-		var group = GetGroupName();
-		if (group == string.Empty)
+	{
+
+		var c = Context;
+
+		if (string.IsNullOrEmpty(_userContext.UserName))
 		{
 			return;
 		}
 
-		await Groups.AddToGroupAsync(Context.ConnectionId, group);
+		await Groups.AddToGroupAsync(Context.ConnectionId, _userContext.UserName);
 		await base.OnConnectedAsync();
 	}
 
 	public override async Task OnDisconnectedAsync(Exception? exception)
 	{
-		var group = GetGroupName();
-		if (group == string.Empty)
+		if (string.IsNullOrEmpty(_userContext.UserName))
 		{
 			return;
 		}
 
-		await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
+		await Groups.RemoveFromGroupAsync(Context.ConnectionId, _userContext.UserName);
 		await base.OnDisconnectedAsync(exception);
 	}
-
-	private string GetGroupName() =>
-		Context
-			.User?
-			.Identities
-			.FirstOrDefault()?
-			.Claims?
-			.FirstOrDefault(c => c.Type is ClaimTypes.Name or "name")?
-			.Value.ToLower() ?? 
-			string.Empty;
 }
