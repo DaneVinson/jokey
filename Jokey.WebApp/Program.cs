@@ -57,10 +57,11 @@ else
 
 app
     .UseHttpsRedirection()
-    .UseStaticFiles()
-    .UseAntiforgery()
     .UseAuthentication()
-    .UseAuthorization();
+    .UseAuthorization()
+    .UseAntiforgery();
+
+app.MapStaticAssets();
 
 app
     .MapRazorComponents<App>()
