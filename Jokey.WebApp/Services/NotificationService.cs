@@ -34,24 +34,18 @@ public class NotificationService : INotificationService, IAsyncDisposable
 			return;
 		}
 
-		var cookies = _httpContextAccessor
-						.HttpContext!
-						.Request
-						.Cookies
-						.ToDictionary(cookie => cookie.Key, cookie => cookie.Value);
-
 		HubConnection = new HubConnectionBuilder()
 								.WithUrl(_navigationManager.ToAbsoluteUri("/notifications"), options =>
 								{
 									options.UseDefaultCredentials = true;
-									var cookieContainer = new CookieContainer(cookies.Count);
-									foreach (var cookie in cookies)
+									var cookieContainer = new CookieContainer(_httpContextAccessor.HttpContext.Request.Cookies.Count);
+									foreach (var cookie in _httpContextAccessor.HttpContext.Request.Cookies)
 									{
 										cookieContainer.Add(new Cookie(
 																	cookie.Key,
 																	WebUtility.UrlEncode(cookie.Value),
-																	path: "/",
-																	domain: _navigationManager.ToAbsoluteUri("/").Host));
+																	"/",
+																	_navigationManager.ToAbsoluteUri("/").Host));
 										options.Headers.Add(cookie.Key, cookie.Value);
 									}
 
