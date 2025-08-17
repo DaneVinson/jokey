@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components.Server.Circuits;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
