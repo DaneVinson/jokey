@@ -1,41 +1,95 @@
-﻿namespace Jokey.WebApp.Services;
+﻿using Microsoft.AspNetCore.Components;
+using System.Reflection.PortableExecutable;
 
-public class NotificationService : INotificationService
+namespace Jokey.WebApp.Services;
+
+public class NotificationService : INotificationService, IAsyncDisposable
 {
-	private readonly AuthenticationStateProvider _authenticationStateProvider;
-    private readonly HubConnection _hubConnection;
+	private readonly IHttpContextAccessor _httpContextAccessor;
+	private readonly NavigationManager _navigationManager;
 
-	public event Action<Notification> OnNotificationReceived = default!;
-
-	public NotificationService(
-		NavigationManager navigationManager,
-		AuthenticationStateProvider authenticationStateProvider)
+	public NotificationService(IHttpContextAccessor httpContextAccessor, NavigationManager navigationManager)
 	{
-		_authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
-		_hubConnection = new HubConnectionBuilder()
-								.WithUrl(navigationManager.ToAbsoluteUri("/notifications"))
-								.WithAutomaticReconnect([TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5)])
-								.Build();
-		_hubConnection.On<Notification>("ReceiveNotification", (notification) =>
+		_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+		_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (!Disposed)
 		{
-			OnNotificationReceived?.Invoke(notification);
-		});
-    }
+			if (HubConnection is not null)
+			{
+				await HubConnection.DisposeAsync();
+			}
+			Disposed = true;
+		}
+
+		GC.SuppressFinalize(this);
+	}
 
 	public async Task StartAsync()
 	{
-		if (_hubConnection.State == HubConnectionState.Disconnected)
+		// Do nothing if the user is not authenticated or if the connection is already established.
+		if (!(_httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false) ||
+			(HubConnection is not null && HubConnection.State != HubConnectionState.Disconnected))
 		{
-			var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-			if (authState?.User.Identity?.IsAuthenticated ?? false)
-			{
-				try
-				{
-					await _hubConnection.StartAsync();
-				}
-				catch (HttpRequestException)
-				{ }
-			}
+			return;
+		}
+
+		var cookies = _httpContextAccessor
+						.HttpContext!
+						.Request
+						.Cookies
+						.ToDictionary(cookie => cookie.Key, cookie => cookie.Value);
+
+		HubConnection = new HubConnectionBuilder()
+								.WithUrl(_navigationManager.ToAbsoluteUri("/notifications"), options =>
+								{
+									options.UseDefaultCredentials = true;
+									var cookieContainer = new CookieContainer(cookies.Count);
+									foreach (var cookie in cookies)
+									{
+										cookieContainer.Add(new Cookie(
+																	cookie.Key,
+																	WebUtility.UrlEncode(cookie.Value),
+																	path: "/",
+																	domain: _navigationManager.ToAbsoluteUri("/").Host));
+										options.Headers.Add(cookie.Key, cookie.Value);
+									}
+
+									options.Cookies = cookieContainer;
+									options.HttpMessageHandlerFactory = _ =>
+									{
+										var clientHandler = new HttpClientHandler
+										{
+											PreAuthenticate = true,
+											CookieContainer = cookieContainer,
+											UseCookies = true,
+											UseDefaultCredentials = true,
+										};
+										return clientHandler;
+									};
+								})
+								.WithAutomaticReconnect([TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5)])
+								.Build();
+		HubConnection.On<Notification>("ReceiveNotification", (notification) =>
+		{
+			OnNotificationReceived?.Invoke(notification);
+		});
+
+		try
+		{
+			await HubConnection.StartAsync();
+		}
+		catch (HttpRequestException)
+		{
+			// HttpRequestException indicates the server is not available or the user is not authenticated.
 		}
 	}
+
+	public event Action<Notification> OnNotificationReceived = default!;
+
+	private bool Disposed { get; set; }
+	private HubConnection? HubConnection { get; set; }
 }

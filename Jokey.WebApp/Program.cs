@@ -12,9 +12,8 @@ builder.Services
 	.AddScoped<IJokeService, JokeService>()
 	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
-    .AddScoped<IUserContext, UserContext>()
 	.AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
-    .AddScoped<CircuitHandler, UserCircuitHandler>()
+    .AddScoped<CircuitHandler, NotificationsCircuitHandler>()
 	.AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
@@ -102,20 +101,16 @@ app.MapGet("/Account/Logout", async (HttpContext httpContext) =>
 
 app.MapPost("/clientnotifications", async (Notification notification, IHubContext<NotificationHub> hubContext) =>
 {
-	//await hubContext
-	//		.Clients
-	//		.Group(notification.UserName)
-	//		.SendAsync(NotificationHub.ClientReceiveMethodName, notification);
-	await hubContext
+    await hubContext
             .Clients
-            .All
+            .Group(notification.UserName)
             .SendAsync(NotificationHub.ClientReceiveMethodName, notification);
 
     return Results.Accepted();
 });
 
 app
-    .MapHub<NotificationHub>("/notifications");
-    //.RequireAuthorization();
+    .MapHub<NotificationHub>("/notifications")
+    .RequireAuthorization();
 
 app.Run();

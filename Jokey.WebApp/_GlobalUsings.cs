@@ -14,6 +14,7 @@ global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authentication.Cookies;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
+global using Microsoft.AspNetCore.Components.Server.Circuits;
 global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.AspNetCore.SignalR.Client;
 global using System.Net;
