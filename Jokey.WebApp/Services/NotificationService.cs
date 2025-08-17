@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using System.Reflection.PortableExecutable;
-
-namespace Jokey.WebApp.Services;
+﻿namespace Jokey.WebApp.Services;
 
 public class NotificationService : INotificationService, IAsyncDisposable
 {
