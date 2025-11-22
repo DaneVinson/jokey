@@ -11,8 +11,7 @@ builder.Services
 	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
 	.AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
-    .AddScoped<CircuitHandler, NotificationsCircuitHandler>()
-	.AddBlazoredToast()
+    .AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
 	.AddRazorComponents()
@@ -22,7 +21,12 @@ builder.Services
 
 builder.Services
     .AddSignalR();
-    //.AddAzureSignalR(azureOptions.SignalRConnectionString);
+// Azure SignalR service integration would be enabled here but integrating
+// Auth0 and Azure SignalR under Blazor server rendering presents further challenges 
+//.AddAzureSignalR(azureOptions.SignalRConnectionString);
+
+// Another possible way to approach Blazor server rendering Auth0/Azure SignalR integration
+// builder.Services.AddScoped<CircuitHandler, NotificationsCircuitHandler>();
 
 builder.Services
     .AddAuth0WebAppAuthentication(options =>
@@ -70,8 +74,10 @@ app
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Jokey.Client._Imports).Assembly);
 
+app.MapGet("/health", () => "Jokey is ready");
+
 app
-    .MapGet("/joke", async (IJokeService jokeService) => await jokeService.GetJokeAsync())
+	.MapGet("/joke", async (IJokeService jokeService) => await jokeService.GetJokeAsync())
     .RequireAuthorization();
 
 app
