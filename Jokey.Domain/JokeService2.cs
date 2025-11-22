@@ -1,6 +1,6 @@
 ﻿namespace Jokey.Domain;
 
-public sealed class JokeService2 : IJokeService2
+public class JokeService2 : IJokeService2
 {
 	private readonly HttpClient _httpClient;
 	private readonly string _jokeUri;

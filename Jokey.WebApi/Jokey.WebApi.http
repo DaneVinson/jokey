@@ -1,6 +1,0 @@
-@Jokey.WebApi_HostAddress = http://localhost:5149
-
-GET {{Jokey.WebApi_HostAddress}}/joke/
-Accept: application/json
-
-###

@@ -1,0 +1,73 @@
+﻿@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Jokey</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <Login />
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="jokes">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Jokes
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="jokes2">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> More Jokes
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code
+{
+    private readonly AuthenticationStateProvider _authenticationStateProvider;
+    private readonly INotificationService _notificationService;
+    private readonly IToastService _toastService;
+
+    public NavMenu(INotificationService notificationService, AuthenticationStateProvider authenticationStateProvider, IToastService toastService)
+    {
+		_authenticationStateProvider = authenticationStateProvider ?? throw new ArgumentNullException(nameof(authenticationStateProvider));
+		_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+		_toastService = toastService ?? throw new ArgumentNullException(nameof(toastService));
+    }
+
+    public void Dispose()
+    {
+        _notificationService.OnNotificationReceived -= ShowNotification;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _notificationService.OnNotificationReceived += ShowNotification;
+
+		var authenticationState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+		if (authenticationState.User.Identity?.IsAuthenticated ?? false)
+		{
+			await _notificationService.StartAsync();
+		}
+
+        await base.OnInitializedAsync();
+	}
+
+	private void ShowNotification(Notification notification)
+	{
+		_toastService.ShowInfo(notification.Message);
+	}
+}

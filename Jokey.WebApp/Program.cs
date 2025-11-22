@@ -1,16 +1,51 @@
 var builder = WebApplication.CreateBuilder(args);
 
+var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
+var azureOptions = builder.Configuration.GetConfigurationObject<AzureOptions>();
+
 builder.Services
-	.AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
-	.AddSingleton(builder.Configuration.GetConfigurationObject<AuthOptions>())
-    .AddSingleton<IJokeService, JokeService>()
-    .AddSingleton<IJokeService2, JokeService2>()
-    .AddRazorComponents()
+    .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
+    .AddSingleton(authOptions)
+    .AddSingleton(azureOptions)
+	.AddScoped<IJokeService, JokeService>()
+	.AddScoped<IJokeService2, JokeService2>()
+	.AddScoped<TokenHandler>()
+	.AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
+    .AddBlazoredToast()
+	.AddHttpContextAccessor()
+	.AddCascadingAuthenticationState()
+	.AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveWebAssemblyComponents()
+	.AddAuthenticationStateSerialization();
+
+builder.Services
+    .AddSignalR();
+// Azure SignalR service integration would be enabled here but integrating
+// Auth0 and Azure SignalR under Blazor server rendering presents further challenges 
+//.AddAzureSignalR(azureOptions.SignalRConnectionString);
+
+// Another possible way to approach Blazor server rendering Auth0/Azure SignalR integration
+// builder.Services.AddScoped<CircuitHandler, NotificationsCircuitHandler>();
+
+builder.Services
+    .AddAuth0WebAppAuthentication(options =>
+    {
+        options.ClientId = authOptions.ClientId;
+        options.ClientSecret = authOptions.ClientSecret;
+        options.Domain = authOptions.Domain;
+    })
+    .WithAccessToken(options =>
+    {
+        options.Audience = authOptions.Audience;
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddHttpClient<JokeService>(nameof(JokeService));
-builder.Services.AddHttpClient<JokeService2>(nameof(JokeService2));
+builder.Services
+    .AddHttpClient<JokeService2>(nameof(JokeService2))
+    .AddHttpMessageHandler<TokenHandler>();
 
 var app = builder.Build();
 
@@ -27,8 +62,11 @@ else
 
 app
     .UseHttpsRedirection()
-    .UseStaticFiles()
+    .UseAuthentication()
+    .UseAuthorization()
     .UseAntiforgery();
+
+app.MapStaticAssets();
 
 app
     .MapRazorComponents<App>()
@@ -36,9 +74,47 @@ app
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Jokey.Client._Imports).Assembly);
 
-app.MapGet("/joke", async (IJokeService jokeService) =>
+app.MapGet("/health", () => "Jokey is ready");
+
+app
+	.MapGet("/joke", async (IJokeService jokeService) => await jokeService.GetJokeAsync())
+    .RequireAuthorization();
+
+app
+	.MapGet("/joke2", async (IJokeService2 jokeService) => await jokeService.GetJokeAsync())
+	.RequireAuthorization();
+
+app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
 {
-	return await jokeService.GetJokeAsync();
+	var authProperties = new LoginAuthenticationPropertiesBuilder()
+			                    .WithRedirectUri(returnUrl)
+			                    .Build();
+
+	await httpContext.ChallengeAsync(Auth0Constants.AuthenticationScheme, authProperties);
 });
+
+app.MapGet("/Account/Logout", async (HttpContext httpContext) =>
+{
+	var authProperties = new LogoutAuthenticationPropertiesBuilder()
+			                    .WithRedirectUri("/")
+			                    .Build();
+
+	await httpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authProperties);
+	await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+});
+
+app.MapPost("/clientnotifications", async (Notification notification, IHubContext<NotificationHub> hubContext) =>
+{
+    await hubContext
+            .Clients
+            .Group(notification.UserName)
+            .SendAsync(NotificationHub.ClientReceiveMethodName, notification);
+
+    return Results.Accepted();
+});
+
+app
+    .MapHub<NotificationHub>("/notifications")
+    .RequireAuthorization();
 
 app.Run();
