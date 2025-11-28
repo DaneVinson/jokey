@@ -1,3 +1,5 @@
+using Microsoft.Azure.SignalR;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var authOptions = builder.Configuration.GetConfigurationObject<AuthOptions>();
@@ -10,7 +12,6 @@ builder.Services
 	.AddScoped<IJokeService, JokeService>()
 	.AddScoped<IJokeService2, JokeService2>()
 	.AddScoped<TokenHandler>()
-	.AddScoped<INotificationService, Jokey.WebApp.Services.NotificationService>()
     .AddBlazoredToast()
 	.AddHttpContextAccessor()
 	.AddCascadingAuthenticationState()
@@ -20,13 +21,8 @@ builder.Services
 	.AddAuthenticationStateSerialization();
 
 builder.Services
-    .AddSignalR();
-// Azure SignalR service integration would be enabled here but integrating
-// Auth0 and Azure SignalR under Blazor server rendering presents further challenges 
-//.AddAzureSignalR(azureOptions.SignalRConnectionString);
-
-// Another possible way to approach Blazor server rendering Auth0/Azure SignalR integration
-// builder.Services.AddScoped<CircuitHandler, NotificationsCircuitHandler>();
+    .AddSignalR()
+    .AddAzureSignalR(azureOptions.SignalRConnectionString);
 
 builder.Services
     .AddAuth0WebAppAuthentication(options =>

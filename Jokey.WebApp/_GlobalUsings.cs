@@ -3,7 +3,6 @@ global using Blazored.Toast;
 global using Jokey.Client;
 global using Jokey.Client.Components;
 global using Jokey.Client.Components.Layout;
-global using Jokey.Client.Services;
 global using Jokey.Client.Views;
 global using Jokey.Domain;
 global using Jokey.WebApp;

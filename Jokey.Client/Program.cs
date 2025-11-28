@@ -4,7 +4,6 @@ builder.Services
     .AddSingleton(builder.Configuration.GetConfigurationObject<AppOptions>())
 	.AddScoped<IJokeService, JokeService>()
     .AddScoped<IJokeService2, JokeService2>()
-    .AddScoped<INotificationService, NotificationService>()
 	.AddBlazoredToast()
 	.AddAuthorizationCore()
     .AddCascadingAuthenticationState()

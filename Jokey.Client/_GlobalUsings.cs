@@ -1,6 +1,5 @@
 ﻿global using Blazored.Toast.Configuration;
 global using Blazored.Toast;
-global using Jokey.Client.Services;
 global using Jokey.Domain;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Authorization;
